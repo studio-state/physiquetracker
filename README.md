@@ -2,9 +2,16 @@
 
 Upload **all files in this folder** to the root of your GitHub Pages repository.
 
-## Important
-Replace the values in `supabase-config.js` with your Supabase project URL and publishable/anon key. Never put a Supabase service-role key in this file.
+## Included
+- iPhone-first Today, Workouts, Progress, History, and Settings navigation
+- Editable workouts
+- Progressive-overload recommendations
+- Functional rest timer: 2:30 compound / 1:15 isolation by default
+- Rest timer auto-starts when a set is marked Done
+- Rest defaults editable in Settings
+- Supabase cloud sync and account sign-in
 
-Run `supabase_schema.sql` in the Supabase SQL Editor before using cloud sync.
+## Supabase
+The included `supabase-config.js` is configured for the Supabase project supplied for this app.
 
-The app works locally even before Supabase is configured; cloud sync is optional.
+Run `supabase_schema.sql` once in the Supabase SQL Editor. Never put a Supabase service-role/secret key in the frontend.
