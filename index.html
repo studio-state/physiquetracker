@@ -3,281 +3,73 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#111">
+<meta name="theme-color" content="#f7f7f5">
 <link rel="manifest" href="manifest.webmanifest">
 <title>Physique Tracker</title>
 <style>
-:root{--bg:#f6f6f3;--card:#fff;--ink:#111;--muted:#777;--line:#e6e6e2;--accent:#111;--good:#16834a}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px -apple-system,BlinkMacSystemFont,"SF Pro Text",Arial,sans-serif}
-header{position:sticky;top:0;z-index:5;background:rgba(246,246,243,.94);backdrop-filter:blur(14px);padding:18px 16px 12px;border-bottom:1px solid var(--line)}
-h1{font-size:25px;margin:0 0 3px}.sub{color:var(--muted);font-size:13px}
-main{max-width:760px;margin:auto;padding:14px 14px 105px}.tabs{display:flex;gap:7px;overflow:auto;margin-bottom:14px}.bottomnav{position:fixed;left:0;right:0;bottom:0;z-index:20;display:grid;grid-template-columns:repeat(5,1fr);padding:8px max(8px,env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-right));background:rgba(255,255,255,.94);backdrop-filter:blur(18px);border-top:1px solid var(--line);box-shadow:0 -4px 18px #0000000a}.navbtn{background:transparent;color:var(--muted);padding:7px 3px 5px;border-radius:12px;font-size:11px;font-weight:600}.navbtn.active{background:#f0f0ec;color:var(--ink)}.navicon{display:block;font-size:19px;line-height:20px;margin-bottom:2px}.tab{border:1px solid var(--line);background:var(--card);padding:10px 13px;border-radius:999px;white-space:nowrap}.tab.active{background:var(--ink);color:#fff}
-.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px;margin:10px 0;box-shadow:0 2px 8px #00000008}
-.row{display:flex;align-items:center;justify-content:space-between;gap:10px}.title{font-weight:700;font-size:17px}.muted{color:var(--muted)}.small{font-size:12px}
-.exercise{padding:13px 0;border-top:1px solid var(--line)}.exercise:first-child{border-top:0}
-.inputs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}.inputs input,.edit input,.edit select{width:100%;padding:11px;border:1px solid var(--line);border-radius:11px;background:#fafaf8;font-size:16px}
-button{border:0;border-radius:11px;padding:10px 13px;background:var(--ink);color:#fff;font-weight:600}button.secondary{background:#f0f0ec;color:var(--ink)}button.danger{background:#fff0f0;color:#b42318}.done{background:#e8f6ed;color:var(--good);border:1px solid #cdebd8}.rec{font-size:12px;color:var(--good);margin-top:7px;font-weight:600}
-.progress{height:8px;background:#e8e8e3;border-radius:99px;overflow:hidden}.bar{height:100%;background:var(--ink);width:0}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{padding:13px;background:#fafaf8;border-radius:13px}.num{font-size:23px;font-weight:750}.label{font-size:11px;color:var(--muted)}
-.edit{display:grid;gap:9px}.editrow{border:1px solid var(--line);border-radius:14px;padding:11px;background:#fff}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
-.notice{padding:11px 12px;background:#f0f0ec;border-radius:12px;color:#555;font-size:13px}
-.hidden{display:none}.empty{text-align:center;padding:35px 10px;color:var(--muted)}
-@media(min-width:600px){.inputs{grid-template-columns:110px 110px 1fr}.exercise{display:grid;grid-template-columns:1fr 1.8fr;gap:14px;align-items:center}.exercise .inputs{margin:0}}
+:root{--bg:#f7f7f5;--card:#fff;--ink:#171717;--muted:#777;--line:#e8e8e3;--soft:#f1f1ed;--green:#198754;--blue:#3867ff;--shadow:0 8px 30px rgba(0,0,0,.06)}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",Arial,sans-serif}body{min-height:100vh}button,input,select{font:inherit}button{border:0;cursor:pointer}.app{max-width:760px;margin:auto;min-height:100vh;padding-bottom:96px}.top{padding:22px 18px 12px;position:sticky;top:0;z-index:10;background:rgba(247,247,245,.94);backdrop-filter:blur(18px)}.eyebrow{font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em}.top h1{font-size:30px;letter-spacing:-.04em;margin:4px 0}.top p{margin:0;color:var(--muted);font-size:14px}.content{padding:10px 16px 20px}.view{display:none}.view.active{display:block}.hero{padding:10px 2px 14px}.hero h2{font-size:25px;margin:0 0 5px;letter-spacing:-.035em}.hero p{margin:0;color:var(--muted)}.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;margin:10px 0;box-shadow:var(--shadow)}.row{display:flex;align-items:center;justify-content:space-between;gap:12px}.title{font-size:17px;font-weight:750}.muted{color:var(--muted)}.small{font-size:12px}.tiny{font-size:11px}.pill{display:inline-flex;align-items:center;padding:6px 9px;border-radius:99px;background:var(--soft);font-size:11px;font-weight:700}.primary{background:var(--ink);color:#fff;padding:11px 14px;border-radius:12px;font-weight:700}.secondary{background:var(--soft);color:var(--ink);padding:10px 13px;border-radius:12px;font-weight:650}.danger{background:#fff0f0;color:#b42318;padding:10px 13px;border-radius:12px;font-weight:650}.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.stat{background:var(--soft);border-radius:15px;padding:13px}.stat .n{font-size:23px;font-weight:800;letter-spacing:-.03em}.stat .l{font-size:10px;color:var(--muted);margin-top:2px;font-weight:700}.daylist{display:grid;gap:10px}.day{display:flex;align-items:center;gap:12px;padding:14px;border:1px solid var(--line);border-radius:16px;background:#fff;text-align:left;width:100%}.daynum{width:38px;height:38px;border-radius:12px;background:var(--soft);display:grid;place-items:center;font-weight:800}.day .meta{flex:1}.day .arrow{color:var(--muted);font-size:20px}.exercise{padding:15px 0;border-top:1px solid var(--line)}.exercise:first-child{border-top:0}.exercise h3{font-size:16px;margin:0 0 3px}.exercise .range{font-size:12px;color:var(--muted)}.rec{margin-top:8px;font-size:12px;color:var(--green);font-weight:700}.setrow{display:grid;grid-template-columns:28px 1fr 1fr 68px;gap:7px;align-items:center;margin-top:8px}.setnum{font-size:11px;color:var(--muted);font-weight:700;text-align:center}.setrow input,.edit input,.edit select,.bodyinput{width:100%;padding:10px;border:1px solid var(--line);border-radius:11px;background:#fafaf8;outline:none}.setrow input:focus,.edit input:focus{border-color:#bbb}.donebtn{background:var(--soft);color:var(--ink);padding:10px 7px;border-radius:11px;font-size:11px;font-weight:750}.donebtn.done{background:#e7f6ed;color:var(--green)}.progressbar{height:8px;background:#ecece7;border-radius:99px;overflow:hidden}.progressbar>div{height:100%;background:var(--ink);border-radius:99px}.chart{height:120px;display:flex;align-items:flex-end;gap:7px;padding:12px 3px 4px}.baritem{flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:5px}.baritem i{display:block;background:#171717;border-radius:5px 5px 2px 2px;min-height:5px}.baritem span{font-size:9px;color:var(--muted);text-align:center}.historyitem{padding:13px 0;border-top:1px solid var(--line)}.historyitem:first-child{border-top:0}.edit{display:grid;gap:9px}.editrow{border:1px solid var(--line);border-radius:15px;padding:12px;background:#fff}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}.editgrid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:7px}.notice{padding:12px;border-radius:14px;background:var(--soft);font-size:12px;color:#5f5f5f}.empty{text-align:center;padding:38px 12px;color:var(--muted)}.bottomnav{position:fixed;left:0;right:0;bottom:0;z-index:50;max-width:760px;margin:auto;display:grid;grid-template-columns:repeat(5,1fr);padding:8px 8px calc(8px + env(safe-area-inset-bottom));background:rgba(255,255,255,.96);backdrop-filter:blur(20px);border-top:1px solid var(--line);box-shadow:0 -8px 28px rgba(0,0,0,.07)}.navbtn{background:transparent;color:#8a8a8a;padding:6px 2px 4px;border-radius:13px;font-size:10px;font-weight:700}.navbtn.active{color:var(--ink);background:var(--soft)}.navicon{display:block;font-size:19px;line-height:19px;margin-bottom:3px}.top-actions{display:flex;gap:7px}.back{background:var(--soft);color:var(--ink);padding:8px 10px;border-radius:10px;font-weight:700}
+@media(max-width:430px){.setrow{grid-template-columns:24px 1fr 1fr 62px}.editgrid{grid-template-columns:1fr 1fr}.top h1{font-size:27px}}
 </style>
 </head>
 <body>
-<header><h1>Physique Tracker</h1><div class="sub">Track lifts • get overload recommendations • edit your program</div></header>
-<main>
-<div class="tabs" id="tabs"></div>
-<div class="notice" style="margin-bottom:12px">Workouts is always available below. Select a day above to start logging.</div>
-<section id="workout"></section>
-<section id="progress" class="hidden"></section>
-<section id="editor" class="hidden"></section>
+<div class="app">
+<header class="top"><div class="eyebrow">Training</div><h1>Physique Tracker</h1><p>Lift smarter. Track progress. Build consistently.</p></header>
+<main class="content">
+<section id="todayView" class="view active"></section>
+<section id="workoutsView" class="view"></section>
+<section id="activeView" class="view"></section>
+<section id="progressView" class="view"></section>
+<section id="historyView" class="view"></section>
+<section id="settingsView" class="view"></section>
 </main>
-<nav class="bottomnav" id="bottomnav" aria-label="Main navigation">
-<button class="navbtn" data-nav="today"><span class="navicon">⌂</span>Today</button>
+<nav class="bottomnav" aria-label="Main navigation">
+<button class="navbtn active" data-nav="today"><span class="navicon">⌂</span>Today</button>
 <button class="navbtn" data-nav="workouts"><span class="navicon">▣</span>Workouts</button>
 <button class="navbtn" data-nav="progress"><span class="navicon">↗</span>Progress</button>
 <button class="navbtn" data-nav="history"><span class="navicon">◷</span>History</button>
 <button class="navbtn" data-nav="settings"><span class="navicon">⚙</span>Settings</button>
-</nav>
-
+</nav></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./supabase-config.js"></script>
 <script>
-/*
-  Cloud mode:
-  - Authentication uses Supabase Auth.
-  - Workout history/program/body weight are stored in Supabase.
-  - The anon/publishable key is safe to expose in a browser when Row Level Security is enabled.
-*/
-window.PT_CLOUD = {
-  client: (window.PT_SUPABASE_URL && window.PT_SUPABASE_ANON_KEY &&
-           !window.PT_SUPABASE_URL.includes("YOUR_") &&
-           !window.PT_SUPABASE_ANON_KEY.includes("YOUR_"))
-    ? supabase.createClient(window.PT_SUPABASE_URL, window.PT_SUPABASE_ANON_KEY)
-    : null,
-  user: null
-};
-
-async function ptCloudInit() {
-  if (!PT_CLOUD.client) return;
-  const { data } = await PT_CLOUD.client.auth.getUser();
-  PT_CLOUD.user = data.user || null;
-}
-ptCloudInit();
-</script>
-
-<script>
-const KEY="physiqueTrackerDataV3";
+const KEY='physiqueTrackerDataV5';
 const defaultPlans=[
-{name:"Chest + Shoulders",ex:[["Incline Barbell Press",4,6,8,"compound"],["Flat Dumbbell Press",3,8,10,"compound"],["Cable Fly",3,10,15,"isolation"],["Seated Overhead Press",3,6,10,"compound"],["Cable Lateral Raise",4,12,20,"isolation"],["Triceps Pressdown",3,10,15,"isolation"]]},
-{name:"Back + Biceps",ex:[["Pull-Ups / Lat Pulldown",4,6,10,"compound"],["Chest-Supported Row",3,8,12,"compound"],["Single-Arm Lat Pulldown",3,10,12,"isolation"],["Cable Row",3,10,15,"compound"],["Rear-Delt Fly",3,15,20,"isolation"],["Hammer Curl",3,8,12,"isolation"],["Incline Curl",3,10,15,"isolation"]]},
-{name:"Legs + Abs",ex:[["Squat / Hack Squat",3,6,10,"compound"],["Romanian Deadlift",3,8,10,"compound"],["Leg Press",3,10,15,"compound"],["Leg Curl",3,10,15,"isolation"],["Calf Raise",4,10,15,"isolation"],["Hanging Leg Raise",3,10,15,"isolation"],["Cable Crunch",3,10,15,"isolation"]]},
-{name:"Upper Body",ex:[["Incline Dumbbell Press",4,8,12,"compound"],["Weighted Pull-Up",4,6,10,"compound"],["Machine Chest Press",3,8,12,"compound"],["Cable Row",3,8,12,"compound"],["Lateral Raise",4,12,20,"isolation"],["Triceps Extension",3,10,15,"isolation"],["Biceps Curl",3,10,15,"isolation"]]},
-{name:"Delts + Arms",ex:[["Lateral Raise",5,12,20,"isolation"],["Rear Delts",4,15,20,"isolation"],["Shoulder Press",3,8,12,"compound"],["Triceps",4,10,15,"isolation"],["Biceps",4,10,15,"isolation"]]}
+{name:'Chest + Shoulders',ex:[['Incline Barbell Press',4,6,8,'compound'],['Flat Dumbbell Press',3,8,10,'compound'],['Cable Fly',3,10,15,'isolation'],['Seated Overhead Press',3,6,10,'compound'],['Cable Lateral Raise',4,12,20,'isolation'],['Triceps Pressdown',3,10,15,'isolation']]},
+{name:'Back + Biceps',ex:[['Pull-Ups / Lat Pulldown',4,6,10,'compound'],['Chest-Supported Row',3,8,12,'compound'],['Single-Arm Lat Pulldown',3,10,12,'isolation'],['Cable Row',3,10,15,'compound'],['Rear-Delt Fly',3,15,20,'isolation'],['Hammer Curl',3,8,12,'isolation'],['Incline Curl',3,10,15,'isolation']]},
+{name:'Legs + Abs',ex:[['Squat / Hack Squat',3,6,10,'compound'],['Romanian Deadlift',3,8,10,'compound'],['Leg Press',3,10,15,'compound'],['Leg Curl',3,10,15,'isolation'],['Calf Raise',4,10,15,'isolation'],['Hanging Leg Raise',3,10,15,'isolation'],['Cable Crunch',3,10,15,'isolation']]},
+{name:'Upper Body',ex:[['Incline Dumbbell Press',4,8,12,'compound'],['Weighted Pull-Up',4,6,10,'compound'],['Machine Chest Press',3,8,12,'compound'],['Cable Row',3,8,12,'compound'],['Lateral Raise',4,12,20,'isolation'],['Triceps Extension',3,10,15,'isolation'],['Biceps Curl',3,10,15,'isolation']]},
+{name:'Delts + Arms',ex:[['Lateral Raise',5,12,20,'isolation'],['Rear Delts',4,15,20,'isolation'],['Shoulder Press',3,8,12,'compound'],['Triceps',4,10,15,'isolation'],['Biceps',4,10,15,'isolation']]}
 ];
-let data=JSON.parse(localStorage.getItem(KEY)||"null")||{plans:defaultPlans,history:[],settings:{unit:"lb"},body:[]};
-let day=0, view="workout", session={};
-function save(){localStorage.setItem(KEY,JSON.stringify(data))}
-function id(){return Date.now()+Math.random()}
-function renderTabs(){tabs.innerHTML=data.plans.map((p,i)=>`<button class="tab ${view=="workout"&&day==i?"active":""}" data-day="${i}">${p.name}</button>`).join("")+`<button class="tab ${view=="editor"?"active":""}" data-view="editor">Edit Workouts</button>`;document.querySelectorAll(".navbtn").forEach(b=>b.classList.toggle("active",(b.dataset.nav==="workouts"&&view==="workout")||(b.dataset.nav==="progress"&&view==="progress")||(b.dataset.nav==="history"&&view==="history")||(b.dataset.nav==="settings"&&view==="editor")||(b.dataset.nav==="today"&&view==="today")))}
-function latest(name){for(let i=data.history.length-1;i>=0;i--){let e=data.history[i].ex.find(x=>x.name===name);if(e)return e}}
-function rec(ex, sets){
-let prev=latest(ex[0]); if(!prev)return "First time — choose a challenging weight.";
-let top=0,total=0;prev.sets.forEach(s=>{top+=Number(s.reps)>=ex[3]?1:0;total++});
-if(top===total)return `Next time: +${ex[4]=="compound"?5:2.5} ${data.settings.unit}`;
-return `Next time: keep ${prev.sets[0]?.weight||"same weight"} and aim for ${ex[2]}+ reps`;
-}
-function renderWorkout(){
-let p=data.plans[day]; let done=Object.values(session).filter(Boolean).length, total=p.ex.reduce((a,e)=>a+e[1],0);
-workout.innerHTML=`<div class="card"><div class="row"><div><div class="title">${p.name}</div><div class="muted small">${done}/${total} sets completed</div></div><button id="finish">Finish Workout</button></div><div class="progress" style="margin-top:12px"><div class="bar" style="width:${total?done/total*100:0}%"></div></div></div>`+
-p.ex.map((e,ei)=>{let prev=latest(e[0]);return `<div class="card exercise"><div><div class="title">${e[0]}</div><div class="muted small">${e[1]} sets • ${e[2]}–${e[3]} reps</div><div class="rec">${rec(e)}</div></div><div>${Array.from({length:e[1]},(_,si)=>{let k=ei+"-"+si,s=session[k]||{};return `<div class="inputs"><input inputmode="decimal" placeholder="${prev?.sets?.[si]?.weight||"Weight"}" data-k="${k}" data-f="weight" value="${s.weight||""}"><input inputmode="numeric" placeholder="${prev?.sets?.[si]?.reps||"Reps"}" data-k="${k}" data-f="reps" value="${s.reps||""}"><button class="${s.done?"done":""}" data-done="${k}">${s.done?"✓ Done":"Done"}</button></div>`}).join("")}</div></div>`}).join("")+
-`<div class="card"><div class="row"><div><b>Body weight</b><div class="muted small">Optional</div></div><input id="bodyWeight" inputmode="decimal" style="width:100px;padding:10px;border:1px solid var(--line);border-radius:10px" placeholder="${data.settings.unit}" /></div></div>`;
-}
-function renderProgress(){
-let sets=data.history.reduce((a,h)=>a+h.ex.reduce((b,e)=>b+e.sets.length,0),0), top=data.history.reduce((a,h)=>a+h.ex.reduce((b,e)=>b+e.sets.filter(s=>Number(s.reps)>=e.max).length,0),0);
-progress.innerHTML=`<div class="card"><div class="title">Progress</div><div class="grid" style="margin-top:12px"><div class="stat"><div class="num">${data.history.length}</div><div class="label">WORKOUTS</div></div><div class="stat"><div class="num">${sets}</div><div class="label">SETS</div></div><div class="stat"><div class="num">${top}</div><div class="label">TOP-END SETS</div></div></div></div>`+
-(data.body.length?`<div class="card"><div class="title">Body weight</div>${data.body.slice(-10).reverse().map(x=>`<div class="row" style="padding:9px 0;border-top:1px solid var(--line)"><span>${new Date(x.date).toLocaleDateString()}</span><b>${x.weight} ${data.settings.unit}</b></div>`).join("")}</div>`:"")+
-(data.history.length?`<div class="card"><div class="title">Recent workouts</div>${data.history.slice(-10).reverse().map(h=>`<div style="padding:10px 0;border-top:1px solid var(--line)"><b>${h.plan}</b><div class="muted small">${new Date(h.date).toLocaleString()}</div></div>`).join("")}</div>`:"<div class='empty'>Complete a workout to see your history.</div>");
-}
-function renderEditor(){
-editor.innerHTML=`<div class="card"><div class="row"><div><div class="title">Edit your program</div><div class="muted small">Changes save automatically to this device.</div></div><button id="addDay">+ Day</button></div></div>`+
-data.plans.map((p,pi)=>`<div class="card edit"><div class="row"><input value="${esc(p.name)}" data-pname="${pi}" style="font-size:18px;font-weight:700"><button class="danger" data-delday="${pi}">Delete Day</button></div>${p.ex.map((e,ei)=>`<div class="editrow"><div class="edit"><input value="${esc(e[0])}" data-field="name" data-p="${pi}" data-e="${ei}"><div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:7px"><input type="number" min="1" value="${e[1]}" data-field="sets" data-p="${pi}" data-e="${ei}"><input type="number" min="1" value="${e[2]}" data-field="min" data-p="${pi}" data-e="${ei}"><input type="number" min="1" value="${e[3]}" data-field="max" data-p="${pi}" data-e="${ei}"><select data-field="type" data-p="${pi}" data-e="${ei}"><option ${e[4]=="compound"?"selected":""}>compound</option><option ${e[4]=="isolation"?"selected":""}>isolation</option></select></div><div class="small muted">Sets / min reps / max reps / type</div></div><div class="actions"><button class="danger" data-delex="${pi}-${ei}">Remove exercise</button></div></div>`).join("")}<button class="secondary" data-addex="${pi}">+ Add Exercise</button></div>`).join("")+
-`<div class="card"><div class="title">Settings</div><div class="actions"><button class="secondary" id="unit">${data.settings.unit=="lb"?"Switch to kg":"Switch to lb"}</button><button class="danger" id="reset">Reset program</button></div><div class="notice" style="margin-top:10px">Your workout history is kept when you edit the program. Resetting the program does not delete history.</div></div>`;
-}
-function esc(s){return String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;")}
-function render(){if(view==="today")view="workout";if(view==="history")view="progress";renderTabs();workout.classList.toggle("hidden",view!="workout");progress.classList.toggle("hidden",view!="progress");editor.classList.toggle("hidden",view!="editor");if(view=="workout")renderWorkout();if(view=="progress")renderProgress();if(view=="editor")renderEditor()}
-document.addEventListener("click",e=>{
-let t=e.target.closest("button")||e.target;
-if(t.dataset.nav){if(t.dataset.nav==="workouts"||t.dataset.nav==="today"){view="workout"}else if(t.dataset.nav==="progress"||t.dataset.nav==="history"){view="progress"}else if(t.dataset.nav==="settings"){view="editor"}render();return}
-
-if(t.dataset.day){day=+t.dataset.day;view="workout";session={};render()}
-if(t.dataset.view){view=t.dataset.view;render()}
-if(t.id=="finish"){let p=data.plans[day], ex=p.ex.map((x,ei)=>({name:x[0],min:x[2],max:x[3],sets:Array.from({length:x[1]},(_,si)=>({weight:session[ei+"-"+si]?.weight||"",reps:session[ei+"-"+si]?.reps||""}))}));data.history.push({id:id(),date:new Date().toISOString(),plan:p.name,ex});let bw=document.getElementById("bodyWeight");if(bw?.value)data.body.push({date:new Date().toISOString(),weight:bw.value});save();session={};alert("Workout saved.");render()}
-if(t.dataset.done){let s=session[t.dataset.done]||{};s.done=!s.done;session[t.dataset.done]=s;renderWorkout()}
-if(t.id=="addDay"){data.plans.push({name:"New Workout",ex:[["New Exercise",3,8,12,"compound"]]});save();day=data.plans.length-1;render()}
-if(t.dataset.delday){if(data.plans.length<=1)return alert("Keep at least one workout day.");data.plans.splice(+t.dataset.delday,1);day=Math.min(day,data.plans.length-1);save();render()}
-if(t.dataset.delex){let [p,e]=t.dataset.delex.split("-").map(Number);data.plans[p].ex.splice(e,1);save();render()}
-if(t.dataset.addex){let p=+t.dataset.addex;data.plans[p].ex.push(["New Exercise",3,8,12,"compound"]);save();render()}
-if(t.id=="unit"){data.settings.unit=data.settings.unit=="lb"?"kg":"lb";save();render()}
-if(t.id=="reset"&&confirm("Reset workouts to the original program? Your history will stay.")){data.plans=JSON.parse(JSON.stringify(defaultPlans));save();render()}
-});
-document.addEventListener("input",e=>{
-let t=e.target;
-if(t.dataset.k){session[t.dataset.k]=session[t.dataset.k]||{};session[t.dataset.k][t.dataset.f]=t.value}
-if(t.dataset.pname){data.plans[+t.dataset.pname].name=t.value;save()}
-if(t.dataset.field){let p=+t.dataset.p,e=+t.dataset.e, v=t.value;let map={name:0,sets:1,min:2,max:3,type:4};data.plans[p].ex[e][map[t.dataset.field]]=t.dataset.field=="name"||t.dataset.field=="type"?v:Number(v);save()}
-});
-if("serviceWorker"in navigator)navigator.serviceWorker.register("./sw.js").catch(()=>{});
-
-/* ================= CLOUD SYNC V4 ================= */
-const PT_LOCAL_BACKUP_KEY = KEY;
-async function cloudSaveAll() {
-  const c = PT_CLOUD.client, u = PT_CLOUD.user;
-  if (!c || !u) return;
-  try {
-    // Upsert workout program.
-    for (let wi = 0; wi < data.plans.length; wi++) {
-      const p = data.plans[wi];
-      const { data: wd, error: we } = await c.from("pt_workouts")
-        .upsert({user_id:u.id, name:p.name, sort_order:wi}, {onConflict:"user_id,sort_order"})
-        .select().single();
-      if (we) throw we;
-      for (let ei = 0; ei < p.ex.length; ei++) {
-        const e = p.ex[ei];
-        const { error: ee } = await c.from("pt_exercises").upsert({
-          user_id:u.id, workout_id:wd.id, name:e[0], sets:e[1],
-          min_reps:e[2], max_reps:e[3], exercise_type:e[4], sort_order:ei
-        }, {onConflict:"user_id,workout_id,sort_order"});
-        if (ee) throw ee;
-      }
-    }
-    // Body weights.
-    if (data.body?.length) {
-      const rows = data.body.map(x=>({user_id:u.id, recorded_at:x.date, weight:Number(x.weight)}));
-      await c.from("pt_body_weight").upsert(rows, {onConflict:"user_id,recorded_at"});
-    }
-  } catch(e) {
-    console.warn("Cloud save:", e);
-  }
-}
-async function cloudLoadProgram() {
-  const c=PT_CLOUD.client,u=PT_CLOUD.user;
-  if(!c||!u) return false;
-  const {data: ws,error}=await c.from("pt_workouts").select("id,name,sort_order,pt_exercises(*)").eq("user_id",u.id).order("sort_order");
-  if(error || !ws?.length) return false;
-  data.plans=ws.map(w=>({
-    name:w.name,
-    ex:(w.pt_exercises||[]).sort((a,b)=>a.sort_order-b.sort_order).map(e=>[
-      e.name,e.sets,e.min_reps,e.max_reps,e.exercise_type
-    ])
-  }));
-  const {data:bw}=await c.from("pt_body_weight").select("recorded_at,weight").eq("user_id",u.id).order("recorded_at");
-  data.body=(bw||[]).map(x=>({date:x.recorded_at,weight:x.weight}));
-  save();
-  return true;
-}
-async function cloudSaveSession(h) {
-  const c=PT_CLOUD.client,u=PT_CLOUD.user;
-  if(!c||!u) return;
-  try {
-    const {data:s,error}=await c.from("pt_sessions").insert({
-      user_id:u.id, workout_name:h.plan, completed_at:h.date
-    }).select().single();
-    if(error) throw error;
-    const rows=[];
-    h.ex.forEach(ex=>ex.sets.forEach((set,i)=>rows.push({
-      user_id:u.id,session_id:s.id,exercise_name:ex.name,set_number:i+1,
-      weight:set.weight===""?null:Number(set.weight),reps:set.reps===""?null:Number(set.reps),
-      min_reps:ex.min,max_reps:ex.max
-    })));
-    if(rows.length) await c.from("pt_sets").insert(rows);
-  } catch(e){ console.warn("Cloud session save:",e); }
-}
-async function cloudLoadHistory() {
-  const c=PT_CLOUD.client,u=PT_CLOUD.user;
-  if(!c||!u)return;
-  const {data:sessions}=await c.from("pt_sessions").select("id,workout_name,completed_at,pt_sets(*)").eq("user_id",u.id).order("completed_at");
-  if(!sessions)return;
-  data.history=sessions.map(s=>{
-    const groups={};
-    (s.pt_sets||[]).forEach(x=>{
-      groups[x.exercise_name]??={name:x.exercise_name,min:x.min_reps,max:x.max_reps,sets:[]};
-      groups[x.exercise_name].sets.push({weight:x.weight??"",reps:x.reps??""});
-    });
-    return {id:s.id,date:s.completed_at,plan:s.workout_name,ex:Object.values(groups)};
-  });
-  save();
-}
-async function ptAuth() {
-  if(!PT_CLOUD.client) {
-    alert("Cloud database is not configured yet. Open supabase-config.js and add your Supabase URL and publishable/anon key.");
-    return;
-  }
-  const email=prompt("Email:");
-  if(!email)return;
-  const password=prompt("Password (6+ characters):");
-  if(!password)return;
-  let r=await PT_CLOUD.client.auth.signInWithPassword({email,password});
-  if(r.error) {
-    const s=await PT_CLOUD.client.auth.signUp({email,password});
-    if(s.error){alert(s.error.message);return}
-    alert("Account created. If email confirmation is enabled in Supabase, confirm your email, then sign in.");
-    return;
-  }
-  PT_CLOUD.user=r.data.user;
-  await cloudLoadProgram();
-  await cloudLoadHistory();
-  render();
-}
-async function ptSignOut() {
-  if(PT_CLOUD.client) await PT_CLOUD.client.auth.signOut();
-  PT_CLOUD.user=null; location.reload();
-}
-async function cloudStatusCard() {
-  return PT_CLOUD.user ? `Signed in as ${PT_CLOUD.user.email}` : "Not signed in";
-}
-
-/* Wrap the original local save so cloud sync follows edits. */
-const ptOriginalSave = save;
-save = function(){ ptOriginalSave(); if(PT_CLOUD.user) cloudSaveAll(); };
-
-/* Wrap finish so completed sessions also sync. */
-const ptOriginalFinishRender = renderWorkout;
-renderWorkout = function(){
-  ptOriginalFinishRender();
-  const finishBtn=document.getElementById("finish");
-  if(finishBtn && !finishBtn.dataset.cloudWrapped){
-    finishBtn.dataset.cloudWrapped="1";
-    const old=finishBtn.onclick;
-  }
-};
-
-/* Add account controls to editor/settings area. */
-const ptOriginalRenderEditor = renderEditor;
-renderEditor = function(){
-  ptOriginalRenderEditor();
-  const c=document.createElement("div");
-  c.className="card";
-  c.innerHTML=`<div class="title">Cloud Sync</div>
-    <div class="muted small" style="margin:5px 0 10px">${PT_CLOUD.user ? "Signed in as "+esc(PT_CLOUD.user.email) : "Your data can sync across devices with a free Supabase account."}</div>
-    <div class="actions">
-      ${PT_CLOUD.user ? '<button id="ptSignOut" class="secondary">Sign Out</button>' : '<button id="ptSignIn">Sign In / Create Account</button>'}
-      ${PT_CLOUD.user ? '<button id="ptSync" class="secondary">Sync Now</button>' : ''}
-    </div>`;
-  editor.prepend(c);
-};
-document.addEventListener("click",async e=>{
-  if(e.target.id==="ptSignIn") await ptAuth();
-  if(e.target.id==="ptSignOut") await ptSignOut();
-  if(e.target.id==="ptSync"){await cloudSaveAll();await cloudLoadHistory();render();alert("Synced.");}
-});
-
-/* Initial cloud load after auth is available. */
-(async()=>{ if(PT_CLOUD.client){ await ptCloudInit(); if(PT_CLOUD.user){ await cloudLoadProgram(); await cloudLoadHistory(); render(); } } })();
-
-render();
+let data=JSON.parse(localStorage.getItem(KEY)||'null')||{plans:JSON.parse(JSON.stringify(defaultPlans)),history:[],settings:{unit:'lb'},body:[]};
+if(!data.settings)data.settings={unit:'lb'};if(!data.history)data.history=[];if(!data.body)data.body=[];
+let nav='today',day=0,session={};
+const $=id=>document.getElementById(id);
+function save(){localStorage.setItem(KEY,JSON.stringify(data));if(window.PT_CLOUD?.user)cloudSaveAll()}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}
+function latest(name){for(let i=data.history.length-1;i>=0;i--){let x=data.history[i].ex.find(e=>e.name===name);if(x)return x}}
+function rec(ex){let p=latest(ex[0]);if(!p)return 'First time — choose a challenging weight.';let all=p.sets.length&&p.sets.every(s=>Number(s.reps)>=ex[3]);if(all)return `Progression: +${ex[4]==='compound'?5:2.5} ${data.settings.unit} next time`;return `Keep the weight and aim for ${ex[2]}–${ex[3]} reps`}
+function setCount(p){return p.ex.reduce((a,e)=>a+e[1],0)}
+function completed(p){return Object.values(session).filter(Boolean).length}
+function show(name){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));$(name+'View').classList.add('active');document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.nav===name));nav=name;window.scrollTo({top:0,behavior:'smooth'});renderCurrent()}
+function renderCurrent(){if(nav==='today')renderToday();if(nav==='workouts')renderWorkouts();if(nav==='progress')renderProgress();if(nav==='history')renderHistory();if(nav==='settings')renderSettings();if(nav==='active')renderActive()}
+function renderToday(){let p=data.plans[day], total=setCount(p),done=completed(p), recent=data.history[data.history.length-1];$('todayView').innerHTML=`<div class="hero"><h2>Ready to train?</h2><p>Pick up where you left off and beat your last session.</p></div><div class="card"><div class="row"><div><div class="pill">TODAY'S WORKOUT</div><div class="title" style="margin-top:8px">${esc(p.name)}</div><div class="muted small">${p.ex.length} exercises • ${total} sets</div></div><button class="primary" data-start="${day}">Start</button></div><div class="progressbar" style="margin-top:15px"><div style="width:${total?done/total*100:0}%"></div></div></div><div class="statgrid"><div class="stat"><div class="n">${data.history.length}</div><div class="l">WORKOUTS</div></div><div class="stat"><div class="n">${data.history.reduce((a,h)=>a+h.ex.reduce((b,e)=>b+e.sets.length,0),0)}</div><div class="l">TOTAL SETS</div></div><div class="stat"><div class="n">${data.body.length?data.body[data.body.length-1].weight:'—'}</div><div class="l">${data.settings.unit.toUpperCase()}</div></div></div>${recent?`<div class="card"><div class="title">Last session</div><div class="historyitem"><b>${esc(recent.plan)}</b><div class="muted small">${new Date(recent.date).toLocaleDateString()}</div></div></div>`:''}`}
+function renderWorkouts(){let p=data.plans[day];$('workoutsView').innerHTML=`<div class="hero"><h2>Workouts</h2><p>Your complete training split. Always available.</p></div><div class="daylist">${data.plans.map((p,i)=>`<button class="day" data-start="${i}"><div class="daynum">${i+1}</div><div class="meta"><b>${esc(p.name)}</b><div class="muted small">${p.ex.length} exercises • ${setCount(p)} sets</div></div><div class="arrow">›</div></button>`).join('')}</div><div class="card"><div class="row"><div><div class="title">Quick start</div><div class="muted small">Continue your current day.</div></div><button class="secondary" data-start="${day}">Start Day ${day+1}</button></div></div>`}
+function renderActive(){let p=data.plans[day],total=setCount(p),done=completed(p);$('activeView').innerHTML=`<div class="hero"><div class="row"><div><button class="back" data-nav="workouts">‹ Workouts</button><h2 style="margin-top:12px">${esc(p.name)}</h2><p>${done}/${total} sets completed</p></div><button class="primary" id="finish">Finish</button></div></div><div class="card"><div class="progressbar"><div style="width:${total?done/total*100:0}%"></div></div></div><div class="card">${p.ex.map((e,ei)=>{let prev=latest(e[0]);return `<div class="exercise"><h3>${esc(e[0])}</h3><div class="range">${e[1]} sets • ${e[2]}–${e[3]} reps • ${e[4]}</div><div class="rec">${rec(e)}</div>${Array.from({length:e[1]},(_,si)=>{let k=ei+'-'+si,s=session[k]||{};return `<div class="setrow"><div class="setnum">${si+1}</div><input inputmode="decimal" placeholder="${prev?.sets?.[si]?.weight||'Weight'}" value="${s.weight||''}" data-k="${k}" data-f="weight"><input inputmode="numeric" placeholder="${prev?.sets?.[si]?.reps||'Reps'}" value="${s.reps||''}" data-k="${k}" data-f="reps"><button class="donebtn ${s.done?'done':''}" data-done="${k}">${s.done?'✓':'Done'}</button></div>`}).join('')}</div>`}).join('')}</div><div class="card"><div class="row"><div><b>Body weight</b><div class="muted small">Optional</div></div><input class="bodyinput" id="bodyWeight" inputmode="decimal" style="max-width:105px" placeholder="${data.settings.unit}"></div></div>`}
+function renderProgress(){let totalSets=data.history.reduce((a,h)=>a+h.ex.reduce((b,e)=>b+e.sets.length,0),0),top=data.history.reduce((a,h)=>a+h.ex.reduce((b,e)=>b+e.sets.filter(s=>Number(s.reps)>=e.max).length,0),0),vals=data.history.slice(-7);let max=Math.max(1,...vals.map(h=>h.ex.reduce((a,e)=>a+e.sets.length,0)));$('progressView').innerHTML=`<div class="hero"><h2>Progress</h2><p>See consistency and performance over time.</p></div><div class="statgrid"><div class="stat"><div class="n">${data.history.length}</div><div class="l">WORKOUTS</div></div><div class="stat"><div class="n">${totalSets}</div><div class="l">SETS</div></div><div class="stat"><div class="n">${top}</div><div class="l">TOP-END SETS</div></div></div><div class="card"><div class="row"><div><div class="title">Training volume</div><div class="muted small">Sets per completed workout</div></div></div><div class="chart">${vals.length?vals.map((h,i)=>`<div class="baritem"><i style="height:${Math.max(8,h.ex.reduce((a,e)=>a+e.sets.length,0)/max*78)}px"></i><span>${i+1}</span></div>`).join(''):'<div class="empty" style="width:100%;padding:20px">Complete workouts to build your chart.</div>'}</div></div><div class="card"><div class="title">Body weight</div>${data.body.length?data.body.slice(-8).reverse().map(x=>`<div class="historyitem"><div class="row"><span>${new Date(x.date).toLocaleDateString()}</span><b>${x.weight} ${data.settings.unit}</b></div></div>`).join(''):'<div class="empty">No body-weight entries yet.</div>'}</div>`}
+function renderHistory(){ $('historyView').innerHTML=`<div class="hero"><h2>History</h2><p>Your completed training sessions.</p></div><div class="card">${data.history.length?data.history.slice().reverse().map(h=>`<div class="historyitem"><div class="row"><div><b>${esc(h.plan)}</b><div class="muted small">${new Date(h.date).toLocaleString()}</div></div><span class="pill">${h.ex.reduce((a,e)=>a+e.sets.length,0)} sets</span></div></div>`).join(''):'<div class="empty">No workouts completed yet.<br>Start your first session from Workouts.</div>'}</div>`}
+function renderSettings(){let cloud=window.PT_CLOUD?.user;$('settingsView').innerHTML=`<div class="hero"><h2>Settings</h2><p>Customize your program and sync your data.</p></div><div class="card"><div class="title">Units</div><div class="row" style="margin-top:10px"><span class="muted">Weight unit</span><button class="secondary" id="unit">${data.settings.unit==='lb'?'lb → kg':'kg → lb'}</button></div></div><div class="card edit"><div class="row"><div><div class="title">Edit workouts</div><div class="muted small">Changes save automatically on this device.</div></div><button class="secondary" id="addDay">+ Day</button></div>${data.plans.map((p,pi)=>`<div class="editrow"><div class="row"><input value="${esc(p.name)}" data-pname="${pi}" style="font-weight:750"><button class="danger" data-delday="${pi}">Delete</button></div>${p.ex.map((e,ei)=>`<div class="editrow" style="margin-top:8px"><input value="${esc(e[0])}" data-field="name" data-p="${pi}" data-e="${ei}"><div class="editgrid" style="margin-top:7px"><input type="number" min="1" value="${e[1]}" data-field="sets" data-p="${pi}" data-e="${ei}"><input type="number" min="1" value="${e[2]}" data-field="min" data-p="${pi}" data-e="${ei}"><input type="number" min="1" value="${e[3]}" data-field="max" data-p="${pi}" data-e="${ei}"><select data-field="type" data-p="${pi}" data-e="${ei}"><option ${e[4]==='compound'?'selected':''}>compound</option><option ${e[4]==='isolation'?'selected':''}>isolation</option></select></div><div class="actions"><button class="danger" data-delex="${pi}-${ei}">Remove exercise</button></div></div>`).join('')}<button class="secondary" data-addex="${pi}">+ Add exercise</button></div>`).join('')}</div><div class="card"><div class="title">Cloud Sync</div><div class="muted small" style="margin:6px 0 12px">${cloud?'Signed in as '+esc(cloud.email):'Sign in to sync workouts and history across devices.'}</div><div class="actions">${cloud?'<button class="secondary" id="ptSignOut">Sign out</button><button class="secondary" id="ptSync">Sync now</button>':'<button class="primary" id="ptSignIn">Sign in / Create account</button>'}</div></div><div class="card"><div class="title">Reset program</div><div class="notice" style="margin-top:8px">Reset restores the original 5-day program. Your workout history stays intact.</div><button class="danger" id="reset" style="margin-top:9px">Reset program</button></div>`}
+function finishWorkout(){let p=data.plans[day];let h={id:Date.now()+Math.random(),date:new Date().toISOString(),plan:p.name,ex:p.ex.map((x,ei)=>({name:x[0],min:x[2],max:x[3],sets:Array.from({length:x[1]},(_,si)=>({weight:session[ei+'-'+si]?.weight||'',reps:session[ei+'-'+si]?.reps||''}))}))};data.history.push(h);let bw=$('bodyWeight');if(bw?.value)data.body.push({date:new Date().toISOString(),weight:bw.value});save();if(window.PT_CLOUD?.user)cloudSaveSession(h);session={};alert('Workout saved. Nice work.');show('today')}
+document.addEventListener('click',async e=>{let t=e.target.closest('button');if(!t)return;if(t.dataset.nav){if(t.dataset.nav==='workouts'&&nav==='active'){show('workouts')}else show(t.dataset.nav);return}if(t.dataset.start!==undefined){day=Number(t.dataset.start);session={};show('active');return}if(t.dataset.done){let s=session[t.dataset.done]||{};s.done=!s.done;session[t.dataset.done]=s;renderActive();return}if(t.id==='finish'){finishWorkout();return}if(t.id==='unit'){data.settings.unit=data.settings.unit==='lb'?'kg':'lb';save();renderSettings();return}if(t.id==='addDay'){data.plans.push({name:'New Workout',ex:[['New Exercise',3,8,12,'compound']]});day=data.plans.length-1;save();renderSettings();return}if(t.dataset.delday){if(data.plans.length<=1)return alert('Keep at least one workout day.');data.plans.splice(Number(t.dataset.delday),1);day=Math.min(day,data.plans.length-1);save();renderSettings();return}if(t.dataset.delex){let [p,x]=t.dataset.delex.split('-').map(Number);data.plans[p].ex.splice(x,1);save();renderSettings();return}if(t.dataset.addex){let p=Number(t.dataset.addex);data.plans[p].ex.push(['New Exercise',3,8,12,'compound']);save();renderSettings();return}if(t.id==='reset'&&confirm('Reset to the original 5-day program? History will stay.')){data.plans=JSON.parse(JSON.stringify(defaultPlans));save();renderSettings();return}if(t.id==='ptSignIn'){await ptAuth();return}if(t.id==='ptSignOut'){await ptSignOut();return}if(t.id==='ptSync'){await cloudSaveAll();await cloudLoadHistory();renderCurrent();alert('Synced.');return}});
+document.addEventListener('input',e=>{let t=e.target;if(t.dataset.k){session[t.dataset.k]=session[t.dataset.k]||{};session[t.dataset.k][t.dataset.f]=t.value;return}if(t.dataset.pname){data.plans[Number(t.dataset.pname)].name=t.value;save();return}if(t.dataset.field){let p=Number(t.dataset.p),x=Number(t.dataset.e),map={name:0,sets:1,min:2,max:3,type:4};data.plans[p].ex[x][map[t.dataset.field]]=(t.dataset.field==='name'||t.dataset.field==='type')?t.value:Number(t.value);save()}});
+const PT_CLOUD={client:(window.PT_SUPABASE_URL&&window.PT_SUPABASE_ANON_KEY&&!window.PT_SUPABASE_URL.includes('YOUR_')&&!window.PT_SUPABASE_ANON_KEY.includes('YOUR_'))?supabase.createClient(window.PT_SUPABASE_URL,window.PT_SUPABASE_ANON_KEY):null,user:null};window.PT_CLOUD=PT_CLOUD;
+async function ptCloudInit(){if(!PT_CLOUD.client)return;let r=await PT_CLOUD.client.auth.getUser();PT_CLOUD.user=r.data.user||null}
+async function cloudSaveAll(){let c=PT_CLOUD.client,u=PT_CLOUD.user;if(!c||!u)return;try{for(let wi=0;wi<data.plans.length;wi++){let p=data.plans[wi];let {data:w,error}=await c.from('pt_workouts').upsert({user_id:u.id,name:p.name,sort_order:wi},{onConflict:'user_id,sort_order'}).select().single();if(error)throw error;for(let ei=0;ei<p.ex.length;ei++){let e=p.ex[ei];await c.from('pt_exercises').upsert({user_id:u.id,workout_id:w.id,name:e[0],sets:e[1],min_reps:e[2],max_reps:e[3],exercise_type:e[4],sort_order:ei},{onConflict:'user_id,workout_id,sort_order'})}}if(data.body.length)await c.from('pt_body_weight').upsert(data.body.map(x=>({user_id:u.id,recorded_at:x.date,weight:Number(x.weight)})),{onConflict:'user_id,recorded_at'})}catch(e){console.warn('Cloud save',e)}}
+async function cloudLoadProgram(){let c=PT_CLOUD.client,u=PT_CLOUD.user;if(!c||!u)return false;let {data:ws,error}=await c.from('pt_workouts').select('id,name,sort_order,pt_exercises(*)').eq('user_id',u.id).order('sort_order');if(error||!ws?.length)return false;data.plans=ws.map(w=>({name:w.name,ex:(w.pt_exercises||[]).sort((a,b)=>a.sort_order-b.sort_order).map(e=>[e.name,e.sets,e.min_reps,e.max_reps,e.exercise_type])}));let {data:bw}=await c.from('pt_body_weight').select('recorded_at,weight').eq('user_id',u.id).order('recorded_at');data.body=(bw||[]).map(x=>({date:x.recorded_at,weight:x.weight}));save();return true}
+async function cloudSaveSession(h){let c=PT_CLOUD.client,u=PT_CLOUD.user;if(!c||!u)return;try{let {data:s,error}=await c.from('pt_sessions').insert({user_id:u.id,workout_name:h.plan,completed_at:h.date}).select().single();if(error)throw error;let rows=[];h.ex.forEach(ex=>ex.sets.forEach((set,i)=>rows.push({user_id:u.id,session_id:s.id,exercise_name:ex.name,set_number:i+1,weight:set.weight===''?null:Number(set.weight),reps:set.reps===''?null:Number(set.reps),min_reps:ex.min,max_reps:ex.max})));if(rows.length)await c.from('pt_sets').insert(rows)}catch(e){console.warn('Cloud session',e)}}
+async function cloudLoadHistory(){let c=PT_CLOUD.client,u=PT_CLOUD.user;if(!c||!u)return;let {data:ss}=await c.from('pt_sessions').select('id,workout_name,completed_at,pt_sets(*)').eq('user_id',u.id).order('completed_at');if(!ss)return;data.history=ss.map(s=>{let groups={};(s.pt_sets||[]).forEach(x=>{groups[x.exercise_name]??={name:x.exercise_name,min:x.min_reps,max:x.max_reps,sets:[]};groups[x.exercise_name].sets.push({weight:x.weight??'',reps:x.reps??''})});return{id:s.id,date:s.completed_at,plan:s.workout_name,ex:Object.values(groups)}});save()}
+async function ptAuth(){if(!PT_CLOUD.client)return alert('Cloud database is not configured. Add your Supabase URL and publishable/anon key to supabase-config.js.');let email=prompt('Email:');if(!email)return;let password=prompt('Password (6+ characters):');if(!password)return;let r=await PT_CLOUD.client.auth.signInWithPassword({email,password});if(r.error){let s=await PT_CLOUD.client.auth.signUp({email,password});if(s.error)return alert(s.error.message);alert('Account created. Confirm your email if required, then sign in.');return}PT_CLOUD.user=r.data.user;await cloudLoadProgram();await cloudLoadHistory();show('today')}
+async function ptSignOut(){if(PT_CLOUD.client)await PT_CLOUD.client.auth.signOut();PT_CLOUD.user=null;show('settings')}
+(async()=>{await ptCloudInit();if(PT_CLOUD.user){await cloudLoadProgram();await cloudLoadHistory()}renderToday()})();
 </script>
-</body>
-</html>
+</body></html>
