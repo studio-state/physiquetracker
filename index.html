@@ -11,7 +11,7 @@
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px -apple-system,BlinkMacSystemFont,"SF Pro Text",Arial,sans-serif}
 header{position:sticky;top:0;z-index:5;background:rgba(246,246,243,.94);backdrop-filter:blur(14px);padding:18px 16px 12px;border-bottom:1px solid var(--line)}
 h1{font-size:25px;margin:0 0 3px}.sub{color:var(--muted);font-size:13px}
-main{max-width:760px;margin:auto;padding:14px 14px 90px}.tabs{display:flex;gap:7px;overflow:auto;margin-bottom:14px}.tab{border:1px solid var(--line);background:var(--card);padding:10px 13px;border-radius:999px;white-space:nowrap}.tab.active{background:var(--ink);color:#fff}
+main{max-width:760px;margin:auto;padding:14px 14px 105px}.tabs{display:flex;gap:7px;overflow:auto;margin-bottom:14px}.bottomnav{position:fixed;left:0;right:0;bottom:0;z-index:20;display:grid;grid-template-columns:repeat(5,1fr);padding:8px max(8px,env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-right));background:rgba(255,255,255,.94);backdrop-filter:blur(18px);border-top:1px solid var(--line);box-shadow:0 -4px 18px #0000000a}.navbtn{background:transparent;color:var(--muted);padding:7px 3px 5px;border-radius:12px;font-size:11px;font-weight:600}.navbtn.active{background:#f0f0ec;color:var(--ink)}.navicon{display:block;font-size:19px;line-height:20px;margin-bottom:2px}.tab{border:1px solid var(--line);background:var(--card);padding:10px 13px;border-radius:999px;white-space:nowrap}.tab.active{background:var(--ink);color:#fff}
 .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px;margin:10px 0;box-shadow:0 2px 8px #00000008}
 .row{display:flex;align-items:center;justify-content:space-between;gap:10px}.title{font-weight:700;font-size:17px}.muted{color:var(--muted)}.small{font-size:12px}
 .exercise{padding:13px 0;border-top:1px solid var(--line)}.exercise:first-child{border-top:0}
@@ -29,10 +29,18 @@ button{border:0;border-radius:11px;padding:10px 13px;background:var(--ink);color
 <header><h1>Physique Tracker</h1><div class="sub">Track lifts • get overload recommendations • edit your program</div></header>
 <main>
 <div class="tabs" id="tabs"></div>
+<div class="notice" style="margin-bottom:12px">Workouts is always available below. Select a day above to start logging.</div>
 <section id="workout"></section>
 <section id="progress" class="hidden"></section>
 <section id="editor" class="hidden"></section>
 </main>
+<nav class="bottomnav" id="bottomnav" aria-label="Main navigation">
+<button class="navbtn" data-nav="today"><span class="navicon">⌂</span>Today</button>
+<button class="navbtn" data-nav="workouts"><span class="navicon">▣</span>Workouts</button>
+<button class="navbtn" data-nav="progress"><span class="navicon">↗</span>Progress</button>
+<button class="navbtn" data-nav="history"><span class="navicon">◷</span>History</button>
+<button class="navbtn" data-nav="settings"><span class="navicon">⚙</span>Settings</button>
+</nav>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./supabase-config.js"></script>
@@ -73,7 +81,7 @@ let data=JSON.parse(localStorage.getItem(KEY)||"null")||{plans:defaultPlans,hist
 let day=0, view="workout", session={};
 function save(){localStorage.setItem(KEY,JSON.stringify(data))}
 function id(){return Date.now()+Math.random()}
-function renderTabs(){tabs.innerHTML=data.plans.map((p,i)=>`<button class="tab ${view=="workout"&&day==i?"active":""}" data-day="${i}">${p.name}</button>`).join("")+`<button class="tab ${view=="progress"?"active":""}" data-view="progress">Progress</button><button class="tab ${view=="editor"?"active":""}" data-view="editor">Edit Workouts</button>`}
+function renderTabs(){tabs.innerHTML=data.plans.map((p,i)=>`<button class="tab ${view=="workout"&&day==i?"active":""}" data-day="${i}">${p.name}</button>`).join("")+`<button class="tab ${view=="editor"?"active":""}" data-view="editor">Edit Workouts</button>`;document.querySelectorAll(".navbtn").forEach(b=>b.classList.toggle("active",(b.dataset.nav==="workouts"&&view==="workout")||(b.dataset.nav==="progress"&&view==="progress")||(b.dataset.nav==="history"&&view==="history")||(b.dataset.nav==="settings"&&view==="editor")||(b.dataset.nav==="today"&&view==="today")))}
 function latest(name){for(let i=data.history.length-1;i>=0;i--){let e=data.history[i].ex.find(x=>x.name===name);if(e)return e}}
 function rec(ex, sets){
 let prev=latest(ex[0]); if(!prev)return "First time — choose a challenging weight.";
@@ -99,9 +107,11 @@ data.plans.map((p,pi)=>`<div class="card edit"><div class="row"><input value="${
 `<div class="card"><div class="title">Settings</div><div class="actions"><button class="secondary" id="unit">${data.settings.unit=="lb"?"Switch to kg":"Switch to lb"}</button><button class="danger" id="reset">Reset program</button></div><div class="notice" style="margin-top:10px">Your workout history is kept when you edit the program. Resetting the program does not delete history.</div></div>`;
 }
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;")}
-function render(){renderTabs();workout.classList.toggle("hidden",view!="workout");progress.classList.toggle("hidden",view!="progress");editor.classList.toggle("hidden",view!="editor");if(view=="workout")renderWorkout();if(view=="progress")renderProgress();if(view=="editor")renderEditor()}
+function render(){if(view==="today")view="workout";if(view==="history")view="progress";renderTabs();workout.classList.toggle("hidden",view!="workout");progress.classList.toggle("hidden",view!="progress");editor.classList.toggle("hidden",view!="editor");if(view=="workout")renderWorkout();if(view=="progress")renderProgress();if(view=="editor")renderEditor()}
 document.addEventListener("click",e=>{
-let t=e.target;
+let t=e.target.closest("button")||e.target;
+if(t.dataset.nav){if(t.dataset.nav==="workouts"||t.dataset.nav==="today"){view="workout"}else if(t.dataset.nav==="progress"||t.dataset.nav==="history"){view="progress"}else if(t.dataset.nav==="settings"){view="editor"}render();return}
+
 if(t.dataset.day){day=+t.dataset.day;view="workout";session={};render()}
 if(t.dataset.view){view=t.dataset.view;render()}
 if(t.id=="finish"){let p=data.plans[day], ex=p.ex.map((x,ei)=>({name:x[0],min:x[2],max:x[3],sets:Array.from({length:x[1]},(_,si)=>({weight:session[ei+"-"+si]?.weight||"",reps:session[ei+"-"+si]?.reps||""}))}));data.history.push({id:id(),date:new Date().toISOString(),plan:p.name,ex});let bw=document.getElementById("bodyWeight");if(bw?.value)data.body.push({date:new Date().toISOString(),weight:bw.value});save();session={};alert("Workout saved.");render()}
