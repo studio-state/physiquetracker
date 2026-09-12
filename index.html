@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Physique Tracker</title>
+<style>
+:root{--bg:#f6f6f3;--card:#fff;--ink:#111;--muted:#777;--line:#e6e6e2;--accent:#111;--good:#16834a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px -apple-system,BlinkMacSystemFont,"SF Pro Text",Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(246,246,243,.94);backdrop-filter:blur(14px);padding:18px 16px 12px;border-bottom:1px solid var(--line)}
+h1{font-size:25px;margin:0 0 3px}.sub{color:var(--muted);font-size:13px}
+main{max-width:760px;margin:auto;padding:14px 14px 90px}.tabs{display:flex;gap:7px;overflow:auto;margin-bottom:14px}.tab{border:1px solid var(--line);background:var(--card);padding:10px 13px;border-radius:999px;white-space:nowrap}.tab.active{background:var(--ink);color:#fff}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px;margin:10px 0;box-shadow:0 2px 8px #00000008}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}.title{font-weight:700;font-size:17px}.muted{color:var(--muted)}.small{font-size:12px}
+.exercise{padding:13px 0;border-top:1px solid var(--line)}.exercise:first-child{border-top:0}
+.inputs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}.inputs input,.edit input,.edit select{width:100%;padding:11px;border:1px solid var(--line);border-radius:11px;background:#fafaf8;font-size:16px}
+button{border:0;border-radius:11px;padding:10px 13px;background:var(--ink);color:#fff;font-weight:600}button.secondary{background:#f0f0ec;color:var(--ink)}button.danger{background:#fff0f0;color:#b42318}.done{background:#e8f6ed;color:var(--good);border:1px solid #cdebd8}.rec{font-size:12px;color:var(--good);margin-top:7px;font-weight:600}
+.progress{height:8px;background:#e8e8e3;border-radius:99px;overflow:hidden}.bar{height:100%;background:var(--ink);width:0}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{padding:13px;background:#fafaf8;border-radius:13px}.num{font-size:23px;font-weight:750}.label{font-size:11px;color:var(--muted)}
+.edit{display:grid;gap:9px}.editrow{border:1px solid var(--line);border-radius:14px;padding:11px;background:#fff}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
+.notice{padding:11px 12px;background:#f0f0ec;border-radius:12px;color:#555;font-size:13px}
+.hidden{display:none}.empty{text-align:center;padding:35px 10px;color:var(--muted)}
+@media(min-width:600px){.inputs{grid-template-columns:110px 110px 1fr}.exercise{display:grid;grid-template-columns:1fr 1.8fr;gap:14px;align-items:center}.exercise .inputs{margin:0}}
+</style>
+</head>
+<body>
+<header><h1>Physique Tracker</h1><div class="sub">Track lifts • get overload recommendations • edit your program</div></header>
+<main>
+<div class="tabs" id="tabs"></div>
+<section id="workout"></section>
+<section id="progress" class="hidden"></section>
+<section id="editor" class="hidden"></section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./supabase-config.js"></script>
+<script>
+/*
+  Cloud mode:
+  - Authentication uses Supabase Auth.
+  - Workout history/program/body weight are stored in Supabase.
+  - The anon/publishable key is safe to expose in a browser when Row Level Security is enabled.
+*/
+window.PT_CLOUD = {
+  client: (window.PT_SUPABASE_URL && window.PT_SUPABASE_ANON_KEY &&
+           !window.PT_SUPABASE_URL.includes("YOUR_") &&
+           !window.PT_SUPABASE_ANON_KEY.includes("YOUR_"))
+    ? supabase.createClient(window.PT_SUPABASE_URL, window.PT_SUPABASE_ANON_KEY)
+    : null,
+  user: null
+};
+
+async function ptCloudInit() {
+  if (!PT_CLOUD.client) return;
+  const { data } = await PT_CLOUD.client.auth.getUser();
+  PT_CLOUD.user = data.user || null;
+}
+ptCloudInit();
+</script>
+
+<script>
+const KEY="physiqueTrackerDataV3";
+const defaultPlans=[
+{name:"Chest + Shoulders",ex:[["Incline Barbell Press",4,6,8,"compound"],["Flat Dumbbell Press",3,8,10,"compound"],["Cable Fly",3,10,15,"isolation"],["Seated Overhead Press",3,6,10,"compound"],["Cable Lateral Raise",4,12,20,"isolation"],["Triceps Pressdown",3,10,15,"isolation"]]},
+{name:"Back + Biceps",ex:[["Pull-Ups / Lat Pulldown",4,6,10,"compound"],["Chest-Supported Row",3,8,12,"compound"],["Single-Arm Lat Pulldown",3,10,12,"isolation"],["Cable Row",3,10,15,"compound"],["Rear-Delt Fly",3,15,20,"isolation"],["Hammer Curl",3,8,12,"isolation"],["Incline Curl",3,10,15,"isolation"]]},
+{name:"Legs + Abs",ex:[["Squat / Hack Squat",3,6,10,"compound"],["Romanian Deadlift",3,8,10,"compound"],["Leg Press",3,10,15,"compound"],["Leg Curl",3,10,15,"isolation"],["Calf Raise",4,10,15,"isolation"],["Hanging Leg Raise",3,10,15,"isolation"],["Cable Crunch",3,10,15,"isolation"]]},
+{name:"Upper Body",ex:[["Incline Dumbbell Press",4,8,12,"compound"],["Weighted Pull-Up",4,6,10,"compound"],["Machine Chest Press",3,8,12,"compound"],["Cable Row",3,8,12,"compound"],["Lateral Raise",4,12,20,"isolation"],["Triceps Extension",3,10,15,"isolation"],["Biceps Curl",3,10,15,"isolation"]]},
+{name:"Delts + Arms",ex:[["Lateral Raise",5,12,20,"isolation"],["Rear Delts",4,15,20,"isolation"],["Shoulder Press",3,8,12,"compound"],["Triceps",4,10,15,"isolation"],["Biceps",4,10,15,"isolation"]]}
+];
+let data=JSON.parse(localStorage.getItem(KEY)||"null")||{plans:defaultPlans,history:[],settings:{unit:"lb"},body:[]};
+let day=0, view="workout", session={};
+function save(){localStorage.setItem(KEY,JSON.stringify(data))}
+function id(){return Date.now()+Math.random()}
+function renderTabs(){tabs.innerHTML=data.plans.map((p,i)=>`<button class="tab ${view=="workout"&&day==i?"active":""}" data-day="${i}">${p.name}</button>`).join("")+`<button class="tab ${view=="progress"?"active":""}" data-view="progress">Progress</button><button class="tab ${view=="editor"?"active":""}" data-view="editor">Edit Workouts</button>`}
+function latest(name){for(let i=data.history.length-1;i>=0;i--){let e=data.history[i].ex.find(x=>x.name===name);if(e)return e}}
+function rec(ex, sets){
+let prev=latest(ex[0]); if(!prev)return "First time — choose a challenging weight.";
+let top=0,total=0;prev.sets.forEach(s=>{top+=Number(s.reps)>=ex[3]?1:0;total++});
+if(top===total)return `Next time: +${ex[4]=="compound"?5:2.5} ${data.settings.unit}`;
+return `Next time: keep ${prev.sets[0]?.weight||"same weight"} and aim for ${ex[2]}+ reps`;
+}
+function renderWorkout(){
+let p=data.plans[day]; let done=Object.values(session).filter(Boolean).length, total=p.ex.reduce((a,e)=>a+e[1],0);
+workout.innerHTML=`<div class="card"><div class="row"><div><div class="title">${p.name}</div><div class="muted small">${done}/${total} sets completed</div></div><button id="finish">Finish Workout</button></div><div class="progress" style="margin-top:12px"><div class="bar" style="width:${total?done/total*100:0}%"></div></div></div>`+
+p.ex.map((e,ei)=>{let prev=latest(e[0]);return `<div class="card exercise"><div><div class="title">${e[0]}</div><div class="muted small">${e[1]} sets • ${e[2]}–${e[3]} reps</div><div class="rec">${rec(e)}</div></div><div>${Array.from({length:e[1]},(_,si)=>{let k=ei+"-"+si,s=session[k]||{};return `<div class="inputs"><input inputmode="decimal" placeholder="${prev?.sets?.[si]?.weight||"Weight"}" data-k="${k}" data-f="weight" value="${s.weight||""}"><input inputmode="numeric" placeholder="${prev?.sets?.[si]?.reps||"Reps"}" data-k="${k}" data-f="reps" value="${s.reps||""}"><button class="${s.done?"done":""}" data-done="${k}">${s.done?"✓ Done":"Done"}</button></div>`}).join("")}</div></div>`}).join("")+
+`<div class="card"><div class="row"><div><b>Body weight</b><div class="muted small">Optional</div></div><input id="bodyWeight" inputmode="decimal" style="width:100px;padding:10px;border:1px solid var(--line);border-radius:10px" placeholder="${data.settings.unit}" /></div></div>`;
+}
+function renderProgress(){
+let sets=data.history.reduce((a,h)=>a+h.ex.reduce((b,e)=>b+e.sets.length,0),0), top=data.history.reduce((a,h)=>a+h.ex.reduce((b,e)=>b+e.sets.filter(s=>Number(s.reps)>=e.max).length,0),0);
+progress.innerHTML=`<div class="card"><div class="title">Progress</div><div class="grid" style="margin-top:12px"><div class="stat"><div class="num">${data.history.length}</div><div class="label">WORKOUTS</div></div><div class="stat"><div class="num">${sets}</div><div class="label">SETS</div></div><div class="stat"><div class="num">${top}</div><div class="label">TOP-END SETS</div></div></div></div>`+
+(data.body.length?`<div class="card"><div class="title">Body weight</div>${data.body.slice(-10).reverse().map(x=>`<div class="row" style="padding:9px 0;border-top:1px solid var(--line)"><span>${new Date(x.date).toLocaleDateString()}</span><b>${x.weight} ${data.settings.unit}</b></div>`).join("")}</div>`:"")+
+(data.history.length?`<div class="card"><div class="title">Recent workouts</div>${data.history.slice(-10).reverse().map(h=>`<div style="padding:10px 0;border-top:1px solid var(--line)"><b>${h.plan}</b><div class="muted small">${new Date(h.date).toLocaleString()}</div></div>`).join("")}</div>`:"<div class='empty'>Complete a workout to see your history.</div>");
+}
+function renderEditor(){
+editor.innerHTML=`<div class="card"><div class="row"><div><div class="title">Edit your program</div><div class="muted small">Changes save automatically to this device.</div></div><button id="addDay">+ Day</button></div></div>`+
+data.plans.map((p,pi)=>`<div class="card edit"><div class="row"><input value="${esc(p.name)}" data-pname="${pi}" style="font-size:18px;font-weight:700"><button class="danger" data-delday="${pi}">Delete Day</button></div>${p.ex.map((e,ei)=>`<div class="editrow"><div class="edit"><input value="${esc(e[0])}" data-field="name" data-p="${pi}" data-e="${ei}"><div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:7px"><input type="number" min="1" value="${e[1]}" data-field="sets" data-p="${pi}" data-e="${ei}"><input type="number" min="1" value="${e[2]}" data-field="min" data-p="${pi}" data-e="${ei}"><input type="number" min="1" value="${e[3]}" data-field="max" data-p="${pi}" data-e="${ei}"><select data-field="type" data-p="${pi}" data-e="${ei}"><option ${e[4]=="compound"?"selected":""}>compound</option><option ${e[4]=="isolation"?"selected":""}>isolation</option></select></div><div class="small muted">Sets / min reps / max reps / type</div></div><div class="actions"><button class="danger" data-delex="${pi}-${ei}">Remove exercise</button></div></div>`).join("")}<button class="secondary" data-addex="${pi}">+ Add Exercise</button></div>`).join("")+
+`<div class="card"><div class="title">Settings</div><div class="actions"><button class="secondary" id="unit">${data.settings.unit=="lb"?"Switch to kg":"Switch to lb"}</button><button class="danger" id="reset">Reset program</button></div><div class="notice" style="margin-top:10px">Your workout history is kept when you edit the program. Resetting the program does not delete history.</div></div>`;
+}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;")}
+function render(){renderTabs();workout.classList.toggle("hidden",view!="workout");progress.classList.toggle("hidden",view!="progress");editor.classList.toggle("hidden",view!="editor");if(view=="workout")renderWorkout();if(view=="progress")renderProgress();if(view=="editor")renderEditor()}
+document.addEventListener("click",e=>{
+let t=e.target;
+if(t.dataset.day){day=+t.dataset.day;view="workout";session={};render()}
+if(t.dataset.view){view=t.dataset.view;render()}
+if(t.id=="finish"){let p=data.plans[day], ex=p.ex.map((x,ei)=>({name:x[0],min:x[2],max:x[3],sets:Array.from({length:x[1]},(_,si)=>({weight:session[ei+"-"+si]?.weight||"",reps:session[ei+"-"+si]?.reps||""}))}));data.history.push({id:id(),date:new Date().toISOString(),plan:p.name,ex});let bw=document.getElementById("bodyWeight");if(bw?.value)data.body.push({date:new Date().toISOString(),weight:bw.value});save();session={};alert("Workout saved.");render()}
+if(t.dataset.done){let s=session[t.dataset.done]||{};s.done=!s.done;session[t.dataset.done]=s;renderWorkout()}
+if(t.id=="addDay"){data.plans.push({name:"New Workout",ex:[["New Exercise",3,8,12,"compound"]]});save();day=data.plans.length-1;render()}
+if(t.dataset.delday){if(data.plans.length<=1)return alert("Keep at least one workout day.");data.plans.splice(+t.dataset.delday,1);day=Math.min(day,data.plans.length-1);save();render()}
+if(t.dataset.delex){let [p,e]=t.dataset.delex.split("-").map(Number);data.plans[p].ex.splice(e,1);save();render()}
+if(t.dataset.addex){let p=+t.dataset.addex;data.plans[p].ex.push(["New Exercise",3,8,12,"compound"]);save();render()}
+if(t.id=="unit"){data.settings.unit=data.settings.unit=="lb"?"kg":"lb";save();render()}
+if(t.id=="reset"&&confirm("Reset workouts to the original program? Your history will stay.")){data.plans=JSON.parse(JSON.stringify(defaultPlans));save();render()}
+});
+document.addEventListener("input",e=>{
+let t=e.target;
+if(t.dataset.k){session[t.dataset.k]=session[t.dataset.k]||{};session[t.dataset.k][t.dataset.f]=t.value}
+if(t.dataset.pname){data.plans[+t.dataset.pname].name=t.value;save()}
+if(t.dataset.field){let p=+t.dataset.p,e=+t.dataset.e, v=t.value;let map={name:0,sets:1,min:2,max:3,type:4};data.plans[p].ex[e][map[t.dataset.field]]=t.dataset.field=="name"||t.dataset.field=="type"?v:Number(v);save()}
+});
+if("serviceWorker"in navigator)navigator.serviceWorker.register("./sw.js").catch(()=>{});
+
+/* ================= CLOUD SYNC V4 ================= */
+const PT_LOCAL_BACKUP_KEY = KEY;
+async function cloudSaveAll() {
+  const c = PT_CLOUD.client, u = PT_CLOUD.user;
+  if (!c || !u) return;
+  try {
+    // Upsert workout program.
+    for (let wi = 0; wi < data.plans.length; wi++) {
+      const p = data.plans[wi];
+      const { data: wd, error: we } = await c.from("pt_workouts")
+        .upsert({user_id:u.id, name:p.name, sort_order:wi}, {onConflict:"user_id,sort_order"})
+        .select().single();
+      if (we) throw we;
+      for (let ei = 0; ei < p.ex.length; ei++) {
+        const e = p.ex[ei];
+        const { error: ee } = await c.from("pt_exercises").upsert({
+          user_id:u.id, workout_id:wd.id, name:e[0], sets:e[1],
+          min_reps:e[2], max_reps:e[3], exercise_type:e[4], sort_order:ei
+        }, {onConflict:"user_id,workout_id,sort_order"});
+        if (ee) throw ee;
+      }
+    }
+    // Body weights.
+    if (data.body?.length) {
+      const rows = data.body.map(x=>({user_id:u.id, recorded_at:x.date, weight:Number(x.weight)}));
+      await c.from("pt_body_weight").upsert(rows, {onConflict:"user_id,recorded_at"});
+    }
+  } catch(e) {
+    console.warn("Cloud save:", e);
+  }
+}
+async function cloudLoadProgram() {
+  const c=PT_CLOUD.client,u=PT_CLOUD.user;
+  if(!c||!u) return false;
+  const {data: ws,error}=await c.from("pt_workouts").select("id,name,sort_order,pt_exercises(*)").eq("user_id",u.id).order("sort_order");
+  if(error || !ws?.length) return false;
+  data.plans=ws.map(w=>({
+    name:w.name,
+    ex:(w.pt_exercises||[]).sort((a,b)=>a.sort_order-b.sort_order).map(e=>[
+      e.name,e.sets,e.min_reps,e.max_reps,e.exercise_type
+    ])
+  }));
+  const {data:bw}=await c.from("pt_body_weight").select("recorded_at,weight").eq("user_id",u.id).order("recorded_at");
+  data.body=(bw||[]).map(x=>({date:x.recorded_at,weight:x.weight}));
+  save();
+  return true;
+}
+async function cloudSaveSession(h) {
+  const c=PT_CLOUD.client,u=PT_CLOUD.user;
+  if(!c||!u) return;
+  try {
+    const {data:s,error}=await c.from("pt_sessions").insert({
+      user_id:u.id, workout_name:h.plan, completed_at:h.date
+    }).select().single();
+    if(error) throw error;
+    const rows=[];
+    h.ex.forEach(ex=>ex.sets.forEach((set,i)=>rows.push({
+      user_id:u.id,session_id:s.id,exercise_name:ex.name,set_number:i+1,
+      weight:set.weight===""?null:Number(set.weight),reps:set.reps===""?null:Number(set.reps),
+      min_reps:ex.min,max_reps:ex.max
+    })));
+    if(rows.length) await c.from("pt_sets").insert(rows);
+  } catch(e){ console.warn("Cloud session save:",e); }
+}
+async function cloudLoadHistory() {
+  const c=PT_CLOUD.client,u=PT_CLOUD.user;
+  if(!c||!u)return;
+  const {data:sessions}=await c.from("pt_sessions").select("id,workout_name,completed_at,pt_sets(*)").eq("user_id",u.id).order("completed_at");
+  if(!sessions)return;
+  data.history=sessions.map(s=>{
+    const groups={};
+    (s.pt_sets||[]).forEach(x=>{
+      groups[x.exercise_name]??={name:x.exercise_name,min:x.min_reps,max:x.max_reps,sets:[]};
+      groups[x.exercise_name].sets.push({weight:x.weight??"",reps:x.reps??""});
+    });
+    return {id:s.id,date:s.completed_at,plan:s.workout_name,ex:Object.values(groups)};
+  });
+  save();
+}
+async function ptAuth() {
+  if(!PT_CLOUD.client) {
+    alert("Cloud database is not configured yet. Open supabase-config.js and add your Supabase URL and publishable/anon key.");
+    return;
+  }
+  const email=prompt("Email:");
+  if(!email)return;
+  const password=prompt("Password (6+ characters):");
+  if(!password)return;
+  let r=await PT_CLOUD.client.auth.signInWithPassword({email,password});
+  if(r.error) {
+    const s=await PT_CLOUD.client.auth.signUp({email,password});
+    if(s.error){alert(s.error.message);return}
+    alert("Account created. If email confirmation is enabled in Supabase, confirm your email, then sign in.");
+    return;
+  }
+  PT_CLOUD.user=r.data.user;
+  await cloudLoadProgram();
+  await cloudLoadHistory();
+  render();
+}
+async function ptSignOut() {
+  if(PT_CLOUD.client) await PT_CLOUD.client.auth.signOut();
+  PT_CLOUD.user=null; location.reload();
+}
+async function cloudStatusCard() {
+  return PT_CLOUD.user ? `Signed in as ${PT_CLOUD.user.email}` : "Not signed in";
+}
+
+/* Wrap the original local save so cloud sync follows edits. */
+const ptOriginalSave = save;
+save = function(){ ptOriginalSave(); if(PT_CLOUD.user) cloudSaveAll(); };
+
+/* Wrap finish so completed sessions also sync. */
+const ptOriginalFinishRender = renderWorkout;
+renderWorkout = function(){
+  ptOriginalFinishRender();
+  const finishBtn=document.getElementById("finish");
+  if(finishBtn && !finishBtn.dataset.cloudWrapped){
+    finishBtn.dataset.cloudWrapped="1";
+    const old=finishBtn.onclick;
+  }
+};
+
+/* Add account controls to editor/settings area. */
+const ptOriginalRenderEditor = renderEditor;
+renderEditor = function(){
+  ptOriginalRenderEditor();
+  const c=document.createElement("div");
+  c.className="card";
+  c.innerHTML=`<div class="title">Cloud Sync</div>
+    <div class="muted small" style="margin:5px 0 10px">${PT_CLOUD.user ? "Signed in as "+esc(PT_CLOUD.user.email) : "Your data can sync across devices with a free Supabase account."}</div>
+    <div class="actions">
+      ${PT_CLOUD.user ? '<button id="ptSignOut" class="secondary">Sign Out</button>' : '<button id="ptSignIn">Sign In / Create Account</button>'}
+      ${PT_CLOUD.user ? '<button id="ptSync" class="secondary">Sync Now</button>' : ''}
+    </div>`;
+  editor.prepend(c);
+};
+document.addEventListener("click",async e=>{
+  if(e.target.id==="ptSignIn") await ptAuth();
+  if(e.target.id==="ptSignOut") await ptSignOut();
+  if(e.target.id==="ptSync"){await cloudSaveAll();await cloudLoadHistory();render();alert("Synced.");}
+});
+
+/* Initial cloud load after auth is available. */
+(async()=>{ if(PT_CLOUD.client){ await ptCloudInit(); if(PT_CLOUD.user){ await cloudLoadProgram(); await cloudLoadHistory(); render(); } } })();
+
+render();
+</script>
+</body>
+</html>
