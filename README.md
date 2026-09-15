@@ -1,17 +1,11 @@
-# Physique Tracker — GitHub Pages + Supabase
+# Physique Tracker — GitHub Ready
 
-Upload **all files in this folder** to the root of your GitHub Pages repository.
+This version keeps the original 5-day workout plan and adds Style #4 Minimal Line Art exercise diagrams plus best-form advice and common mistakes to avoid for every exercise.
 
-## Included
-- iPhone-first Today, Workouts, Progress, History, and Settings navigation
-- Editable workouts
-- Progressive-overload recommendations
-- Functional rest timer: 2:30 compound / 1:15 isolation by default
-- Rest timer auto-starts when a set is marked Done
-- Rest defaults editable in Settings
-- Supabase cloud sync and account sign-in
+It includes the nutrition/macros section, meal calculator, progressive overload, rest timers, history/progress, editing, PWA support, and Supabase cloud sync.
 
 ## Supabase
-The included `supabase-config.js` is configured for the Supabase project supplied for this app.
-
-Run `supabase_schema.sql` once in the Supabase SQL Editor. Never put a Supabase service-role/secret key in the frontend.
+1. Create a Supabase project.
+2. Run `supabase_schema.sql` in SQL Editor.
+3. Put your Project URL and browser-safe publishable/anon key in `supabase-config.js`.
+4. Never put a service-role/secret key in the browser.
